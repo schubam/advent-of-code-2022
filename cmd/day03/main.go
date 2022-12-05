@@ -63,7 +63,6 @@ func SolveV1(input string) int {
 	var score int
 
 	for _, l := range lines {
-
 		first := l[0 : len(l)/2]
 		second := l[len(l)/2:]
 		words := []string{first, second}
