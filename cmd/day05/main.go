@@ -6,28 +6,11 @@ import (
 	"strings"
 
 	adventofcode2022 "github.com/schubam/advent-of-code-2022"
+	stack "github.com/schubam/advent-of-code-2022/stack"
 )
 
-type Stack []string
-
-func (s Stack) Push(str string) Stack {
-	return append(s, str)
-}
-
-func (s Stack) Pop() (Stack, string) {
-	l := len(s)
-	return s[:l-1], s[l-1]
-}
-
-func (s Stack) Print() {
-	for _, ele := range s {
-		fmt.Printf("%s", ele)
-	}
-	fmt.Println()
-}
-
 type State struct {
-	columns []*Stack
+	columns []*stack.Stack
 }
 
 func (s *State) Print() {
@@ -98,9 +81,9 @@ func parseHeader(lines []string) State {
 	rowSize := (len(lines[0]) + 1) / 4
 	//fmt.Printf("num columns=%d\n", rowSize)
 
-	stacks := []*Stack{}
+	stacks := []*stack.Stack{}
 	for i := 0; i < rowSize; i++ {
-		stacks = append(stacks, &Stack{})
+		stacks = append(stacks, &stack.Stack{})
 	}
 	res := State{columns: stacks}
 
@@ -128,7 +111,7 @@ func parseHeader(lines []string) State {
 	return res
 }
 
-func reverseArray(arr Stack) Stack {
+func reverseArray(arr stack.Stack) stack.Stack {
 	for i, j := 0, len(arr)-1; i < j; i, j = i+1, j-1 {
 		arr[i], arr[j] = arr[j], arr[i]
 	}
