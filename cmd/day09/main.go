@@ -14,8 +14,68 @@ type Vec struct {
 	y int
 }
 
-func SolveV1(input string) int {
-	chain := []*Vec{{0, 0}, {0, 0}}
+type found struct {
+	vec *Vec
+	idx int
+}
+
+func SolveV1(input string, shouldRender bool) int {
+	return solve(input, 2, shouldRender)
+}
+
+func SolveV2(input string, shouldRender bool) int {
+	return solve(input, 10, shouldRender)
+}
+
+func isAdjacent(a, b *Vec) bool {
+	return math.Abs(float64(a.x)-float64(b.x)) <= 1 && math.Abs(float64(a.y)-float64(b.y)) <= 1
+}
+
+func render(chain []*Vec, visits map[Vec]int) {
+	width := 80
+	height := 50
+
+	l := ""
+	for i := -50; i < height-50; i++ {
+		for j := -30; j < width-30; j++ {
+			token := ""
+			f := found{idx: -1}
+			for idx, n := range chain {
+				if n.x == i && n.y == j {
+					f.vec = n
+					f.idx = idx
+					break
+				}
+			}
+
+			switch {
+			case f.idx == 0:
+				token = "H"
+			case f.idx == len(chain)-1:
+				token = "T"
+			case 1 <= f.idx && f.idx < len(chain)-1:
+				token = fmt.Sprintf("%d", f.idx)
+			default:
+				token += "."
+			}
+
+			for v := range visits {
+				if v.x == i && v.y == j {
+					token = "#"
+				}
+			}
+			l += token
+		}
+		l += fmt.Sprintf("\n")
+	}
+	fmt.Print("\033[2J", "\033[H", l)
+}
+
+func solve(input string, length int, shouldRender bool) int {
+	chain := make([]*Vec, length)
+	for i := 0; i < length; i++ {
+		chain[i] = &Vec{0, 0}
+	}
 	head := chain[0]
 	tail := chain[len(chain)-1]
 	visits := map[Vec]int{}
@@ -42,6 +102,9 @@ func SolveV1(input string) int {
 		}
 
 		for i := 0; i < amount; i++ {
+			if shouldRender {
+				render(chain, visits)
+			}
 			head.x += dir.x
 			head.y += dir.y
 
@@ -49,9 +112,7 @@ func SolveV1(input string) int {
 				cur := chain[j]
 				next := chain[j+1]
 
-				fmt.Println(*cur, *next)
-
-				if !adjacent(cur, next) {
+				if !isAdjacent(cur, next) {
 					if cur.x > next.x {
 						next.x += 1
 					}
@@ -65,27 +126,19 @@ func SolveV1(input string) int {
 						next.y -= 1
 					}
 				}
-				fmt.Println(*cur, *next)
-				fmt.Println()
-
-				visits[*tail] += 1
 			}
+			visits[*tail] += 1
 		}
+	}
+	if shouldRender {
+		render(chain, visits)
 	}
 
 	return len(visits)
 }
 
-func adjacent(a, b *Vec) bool {
-	return math.Abs(float64(a.x)-float64(b.x)) <= 1 && math.Abs(float64(a.y)-float64(b.y)) <= 1
-}
-
-func SolveV2(input string) int {
-	return 0
-}
-
 func main() {
 	input := adventofcode2022.ReadFile("input.txt")
-	fmt.Println(SolveV1(input))
-	fmt.Println(SolveV2(input))
+	fmt.Println(SolveV1(input, false))
+	fmt.Println(SolveV2(input, false))
 }
